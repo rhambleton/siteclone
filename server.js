@@ -3,7 +3,7 @@ var request = require('request');
 var app = express();
 
 //define our host name and our source's host name
-var source_host = "www.reddit.com"
+var source_host = "respecttheshoes.blogspot.com"
 var our_host = "localhost:8080";
 
 //handle all incoming requests
