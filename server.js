@@ -12,7 +12,7 @@ app.get('*', function (req, res) {
 	//pass through incoming headers and query data to the new request
 	var options = {
 
-		uri : "http://"+source_host+req.path,
+		uri : "https://"+source_host+req.path,
 		gzip : true,
 		qs : req.query,
 		method : 'GET',
@@ -35,15 +35,19 @@ app.get('*', function (req, res) {
 
 		} else {
 			
-			//modify the body to point things back to ourselves (should only do this for text)
-			body = body.split(source_host).join(our_host);				
-
+			//modify the body to point things back to ourselves (only do this for text)
+			if(response.headers['content-type'].indexOf("text") !== -1) {
+				body = body.split(source_host).join(our_host);
+				body = body.split('https://').join('http://');
+			}
+			console.log(response.headers['content-type']);
+			
 			//delete the headers associated with gzip (or better yet - figure out how to gzip things back up)
 			delete response.headers["content-encoding"];
 			delete response.headers['content-length'];
 
 			//pass through the headers we got from the source (minus the modificaitons from above)
-			console.log(response.headers);
+			//console.log(response.headers);
 			res.writeHead(200);
 			res.end(body);
 
