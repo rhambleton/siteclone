@@ -1,9 +1,37 @@
 var express = require("express");
-var request = require('request');
+var request = require("request");
+var prcs = require("child_process");
+var fs = require("fs");
 var app = express();
 
+
 //define our host name and our source's host name
-var source_host = "respecttheshoes.blogspot.com"
+var source_host = "";
+
+//read the contents of the host data file
+source_host = fs.readFileSync("./sourceHost.dat", "utf8");
+
+//check if the file was empty
+if(source_host == "") {
+
+	//log the fact we don't have a server to the console
+	console.log("No Server Selected - Getting One...");
+
+	//get a server from the bash script
+	prcs.execSync('bash ./getHost.sh');
+
+	//reread the file to get the server
+	source_host = fs.readFileSync("./sourceHost.dat", "utf8");
+
+}
+
+//remove the http or https
+source_host = source_host.replace(/(^\w+:|^)\/\//, '');
+
+//log the server we are using the console
+console.log("Using Host: "+source_host);
+
+//define our server
 var our_host = "localhost:8080";
 
 //handle all incoming requests
