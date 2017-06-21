@@ -34,7 +34,29 @@ console.log("Using Host: "+source_host);
 //define our server
 var our_host = "localhost:8080";
 
-//handle all incoming requests
+
+//handle an incoming request to update the site
+app.get('/admin/regen', function (req, res) {
+
+	//clear contents of sourceHost.dat
+	fs.writeFile("./sourceHost.dat", "", function(err) {
+
+	//get a new server from the bash script
+	prcs.execSync('bash ./getHost.sh');
+
+	//reread the file to get the server
+	source_host = fs.readFileSync("./sourceHost.dat", "utf8");
+
+	//remove the http or https
+	source_host = source_host.replace(/(^\w+:|^)\/\//, '');
+
+	res.send("New Host: "+source_host);
+
+	}); // end of writefile callback
+
+}); //end of app.get to regen the site
+
+//handle all other incoming requests
 app.get('*', function (req, res) {
 
 	//pass through incoming headers and query data to the new request
