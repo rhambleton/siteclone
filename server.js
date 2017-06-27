@@ -7,6 +7,7 @@ var app = express();
 
 //define our host name and our source's host name
 var source_host = "";
+var our_host = "localhost:8080";
 
 //read the contents of the host data file
 source_host = fs.readFileSync("./sourceHost.dat", "utf8");
@@ -28,29 +29,28 @@ if(source_host == "") {
 //remove the http or https
 source_host = source_host.replace(/(^\w+:|^)\/\//, '');
 
-//log the server we are using the console
+//log the server we are using to the console
 console.log("Using Host: "+source_host);
 
-//define our server
-var our_host = "localhost:8080";
-
-
 //handle an incoming request to update the site
-app.get('/admin/regen', function (req, res) {
+app.get('/admin/regen/:topic', function (req, res) {
+
+	//sanitize input
+	var topic = req.params.topic.replace(/[^a-zA-Z]/g,'');
 
 	//clear contents of sourceHost.dat
 	fs.writeFile("./sourceHost.dat", "", function(err) {
 
-	//get a new server from the bash script
-	prcs.execSync('bash ./getHost.sh');
+		//get a new server from the bash script
+		prcs.execSync('bash ./getHost.sh '+topic);
 
-	//reread the file to get the server
-	source_host = fs.readFileSync("./sourceHost.dat", "utf8");
+		//reread the file to get the server
+		source_host = fs.readFileSync("./sourceHost.dat", "utf8");
 
-	//remove the http or https
-	source_host = source_host.replace(/(^\w+:|^)\/\//, '');
+		//remove the http or https
+		source_host = source_host.replace(/(^\w+:|^)\/\//, '');
 
-	res.send("New Host: "+source_host);
+		res.send("New Host: "+source_host+"<BR><a href='/'>Back</a>");
 
 	}); // end of writefile callback
 
